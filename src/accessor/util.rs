@@ -23,7 +23,7 @@ pub enum Iter<'a, T: Item> {
     Sparse(SparseIter<'a, T>),
 }
 
-impl<'a, T: Item> Iterator for Iter<'a, T> {
+impl<T: Item> Iterator for Iter<'_, T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -62,7 +62,7 @@ impl<'a, T: Item> Iterator for Iter<'a, T> {
     }
 }
 
-impl<'a, T: Item> ExactSizeIterator for Iter<'a, T> {}
+impl<T: Item> ExactSizeIterator for Iter<'_, T> {}
 
 /// Iterator over indices of sparse accessor.
 #[derive(Clone, Debug)]
@@ -75,7 +75,7 @@ pub enum SparseIndicesIter<'a> {
     U32(ItemIter<'a, u32>),
 }
 
-impl<'a> Iterator for SparseIndicesIter<'a> {
+impl Iterator for SparseIndicesIter<'_> {
     type Item = u32;
     fn next(&mut self) -> Option<Self::Item> {
         match *self {
@@ -132,7 +132,7 @@ impl<'a, T: Item> SparseIter<'a, T> {
             base,
             base_count,
             indices: indices.peekable(),
-            values: values,
+            values,
             counter: 0,
         }
     }
@@ -158,7 +158,7 @@ impl<'a, T: Item> SparseIter<'a, T> {
     }
 }
 
-impl<'a, T: Item> Iterator for SparseIter<'a, T> {
+impl<T: Item> Iterator for SparseIter<'_, T> {
     type Item = T;
     fn next(&mut self) -> Option<Self::Item> {
         let mut next_value = if let Some(base) = self.base.as_mut() {
@@ -192,7 +192,7 @@ impl<'a, T: Item> Iterator for SparseIter<'a, T> {
     }
 }
 
-impl<'a, T: Item> ExactSizeIterator for SparseIter<'a, T> {}
+impl<T: Item> ExactSizeIterator for SparseIter<'_, T> {}
 
 /// Represents items that can be read by an [`Accessor`].
 ///
@@ -418,8 +418,8 @@ impl<'a, 's, T: Item> Iter<'s, T> {
     }
 }
 
-impl<'a, T: Item> ExactSizeIterator for ItemIter<'a, T> {}
-impl<'a, T: Item> Iterator for ItemIter<'a, T> {
+impl<T: Item> ExactSizeIterator for ItemIter<'_, T> {}
+impl<T: Item> Iterator for ItemIter<'_, T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {

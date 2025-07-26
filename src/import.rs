@@ -31,7 +31,7 @@ enum Scheme<'a> {
     Unsupported,
 }
 
-impl<'a> Scheme<'a> {
+impl Scheme<'_> {
     fn parse(uri: &str) -> Scheme<'_> {
         if uri.contains(':') {
             if let Some(rest) = uri.strip_prefix("data:") {

@@ -41,7 +41,7 @@ pub struct Primitives<'a> {
     pub(crate) iter: iter::Enumerate<slice::Iter<'a, json::mesh::Primitive>>,
 }
 
-impl<'a> ExactSizeIterator for Attributes<'a> {}
+impl ExactSizeIterator for Attributes<'_> {}
 impl<'a> Iterator for Attributes<'a> {
     type Item = Attribute<'a>;
     fn next(&mut self) -> Option<Self::Item> {
@@ -57,7 +57,7 @@ impl<'a> Iterator for Attributes<'a> {
     }
 }
 
-impl<'a> ExactSizeIterator for Primitives<'a> {}
+impl ExactSizeIterator for Primitives<'_> {}
 impl<'a> Iterator for Primitives<'a> {
     type Item = Primitive<'a>;
     fn next(&mut self) -> Option<Self::Item> {
@@ -107,7 +107,7 @@ fn map_morph_target<'a>(
     }
 }
 
-impl<'a> ExactSizeIterator for MorphTargets<'a> {}
+impl ExactSizeIterator for MorphTargets<'_> {}
 impl<'a> Iterator for MorphTargets<'a> {
     type Item = MorphTarget<'a>;
     fn next(&mut self) -> Option<Self::Item> {

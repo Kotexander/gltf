@@ -38,13 +38,13 @@ trait ColorChannel {
 
 impl ColorChannel for u8 {
     fn max_color() -> Self {
-        u8::max_value()
+        u8::MAX
     }
 }
 
 impl ColorChannel for u16 {
     fn max_color() -> Self {
-        u16::max_value()
+        u16::MAX
     }
 }
 
@@ -112,8 +112,8 @@ impl<'a, A> CastingIter<'a, A> {
     }
 }
 
-impl<'a, A: Cast> ExactSizeIterator for CastingIter<'a, A> {}
-impl<'a, A: Cast> Iterator for CastingIter<'a, A> {
+impl<A: Cast> ExactSizeIterator for CastingIter<'_, A> {}
+impl<A: Cast> Iterator for CastingIter<'_, A> {
     type Item = A::Output;
 
     #[inline]

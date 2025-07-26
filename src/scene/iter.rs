@@ -22,7 +22,7 @@ pub struct Children<'a> {
     pub(crate) iter: slice::Iter<'a, json::Index<json::scene::Node>>,
 }
 
-impl<'a> ExactSizeIterator for Nodes<'a> {}
+impl ExactSizeIterator for Nodes<'_> {}
 impl<'a> Iterator for Nodes<'a> {
     type Item = Node<'a>;
     fn next(&mut self) -> Option<Self::Item> {
@@ -36,7 +36,7 @@ impl<'a> Iterator for Nodes<'a> {
     }
 }
 
-impl<'a> ExactSizeIterator for Children<'a> {}
+impl ExactSizeIterator for Children<'_> {}
 impl<'a> Iterator for Children<'a> {
     type Item = Node<'a>;
     fn next(&mut self) -> Option<Self::Item> {
