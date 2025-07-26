@@ -1,13 +1,13 @@
 use std::error::Error as StdError;
 use std::{fs, path};
 
-const SAMPLE_MODELS_DIRECTORY_PATH: &str = "glTF-Sample-Assets/Models";
+const SAMPLE_MODELS_DIRECTORY_PATH: &str = "glTF-Sample-Models/2.0";
 
 fn check_import_result(
     result: gltf::Result<(
         gltf::Document,
         Vec<gltf::buffer::Data>,
-        Vec<gltf::image::Data>,
+        Vec<gltf::image::DynamicImage>,
     )>,
 ) {
     use gltf::json::validation::Error;
@@ -42,8 +42,10 @@ fn check_import_result(
 }
 
 fn run() -> Result<(), Box<dyn StdError>> {
+    println!("asdf");
     let sample_dir_path = path::Path::new(SAMPLE_MODELS_DIRECTORY_PATH);
     for entry in fs::read_dir(sample_dir_path)? {
+        println!("DSDF");
         let entry = entry?;
         let metadata = entry.metadata()?;
         if metadata.is_dir() {

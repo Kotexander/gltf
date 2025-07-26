@@ -4,13 +4,14 @@ use std::borrow::Cow;
 use std::{fs, io};
 
 use crate::{Document, Error, Gltf, Result};
+use image_crate::DynamicImage;
 #[cfg(feature = "EXT_texture_webp")]
 use image_crate::ImageFormat::WebP;
 use image_crate::ImageFormat::{Jpeg, Png};
 use std::path::Path;
 
 /// Return type of `import`.
-type Import = (Document, Vec<buffer::Data>, Vec<image::Data>);
+type Import = (Document, Vec<buffer::Data>, Vec<DynamicImage>);
 
 /// Represents the set of URI schemes the importer supports.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
@@ -137,90 +138,88 @@ pub fn import_buffers(
     Ok(buffers)
 }
 
-impl image::Data {
-    /// Construct an image data object by reading the given source.
-    /// If `base` is provided, then external filesystem references will
-    /// be resolved from this directory.
-    pub fn from_source(
-        source: image::Source<'_>,
-        base: Option<&Path>,
-        buffer_data: &[buffer::Data],
-    ) -> Result<Self> {
-        #[cfg(feature = "guess_mime_type")]
-        let guess_format = |encoded_image: &[u8]| match image_crate::guess_format(encoded_image) {
-            Ok(image_crate::ImageFormat::Png) => Some(Png),
-            Ok(image_crate::ImageFormat::Jpeg) => Some(Jpeg),
-            #[cfg(feature = "EXT_texture_webp")]
-            Ok(image_crate::ImageFormat::WebP) => Some(WebP),
-            _ => None,
-        };
-        #[cfg(not(feature = "guess_mime_type"))]
-        let guess_format = |_encoded_image: &[u8]| None;
-        let decoded_image = match source {
-            image::Source::Uri { uri, mime_type } if base.is_some() => match Scheme::parse(uri) {
-                Scheme::Data(Some(annoying_case), base64) => {
-                    let encoded_image = base64::decode(base64).map_err(Error::Base64)?;
-                    let encoded_format = match annoying_case {
-                        "image/png" => Png,
-                        "image/jpeg" => Jpeg,
-                        #[cfg(feature = "EXT_texture_webp")]
-                        "image/webp" => WebP,
-                        _ => match guess_format(&encoded_image) {
-                            Some(format) => format,
-                            None => return Err(Error::UnsupportedImageEncoding),
-                        },
-                    };
-
-                    image_crate::load_from_memory_with_format(&encoded_image, encoded_format)?
-                }
-                Scheme::Unsupported => return Err(Error::UnsupportedScheme),
-                _ => {
-                    let encoded_image = Scheme::read(base, uri)?;
-                    let encoded_format = match mime_type {
-                        Some("image/png") => Png,
-                        Some("image/jpeg") => Jpeg,
-                        #[cfg(feature = "EXT_texture_webp")]
-                        Some("image/webp") => WebP,
-                        Some(_) => match guess_format(&encoded_image) {
-                            Some(format) => format,
-                            None => return Err(Error::UnsupportedImageEncoding),
-                        },
-                        None => match uri.rsplit('.').next() {
-                            Some("png") => Png,
-                            Some("jpg") | Some("jpeg") => Jpeg,
-                            #[cfg(feature = "EXT_texture_webp")]
-                            Some("webp") => WebP,
-                            _ => match guess_format(&encoded_image) {
-                                Some(format) => format,
-                                None => return Err(Error::UnsupportedImageEncoding),
-                            },
-                        },
-                    };
-                    image_crate::load_from_memory_with_format(&encoded_image, encoded_format)?
-                }
-            },
-            image::Source::View { view, mime_type } => {
-                let parent_buffer_data = &buffer_data[view.buffer().index()].0;
-                let begin = view.offset();
-                let end = begin + view.length();
-                let encoded_image = &parent_buffer_data[begin..end];
-                let encoded_format = match mime_type {
+/// Construct an image data object by reading the given source.
+/// If `base` is provided, then external filesystem references will
+/// be resolved from this directory.
+pub fn image_from_source(
+    source: image::Source<'_>,
+    base: Option<&Path>,
+    buffer_data: &[buffer::Data],
+) -> Result<DynamicImage> {
+    #[cfg(feature = "guess_mime_type")]
+    let guess_format = |encoded_image: &[u8]| match image_crate::guess_format(encoded_image) {
+        Ok(image_crate::ImageFormat::Png) => Some(Png),
+        Ok(image_crate::ImageFormat::Jpeg) => Some(Jpeg),
+        #[cfg(feature = "EXT_texture_webp")]
+        Ok(image_crate::ImageFormat::WebP) => Some(WebP),
+        _ => None,
+    };
+    #[cfg(not(feature = "guess_mime_type"))]
+    let guess_format = |_encoded_image: &[u8]| None;
+    let decoded_image = match source {
+        image::Source::Uri { uri, mime_type } if base.is_some() => match Scheme::parse(uri) {
+            Scheme::Data(Some(annoying_case), base64) => {
+                let encoded_image = base64::decode(base64).map_err(Error::Base64)?;
+                let encoded_format = match annoying_case {
                     "image/png" => Png,
                     "image/jpeg" => Jpeg,
                     #[cfg(feature = "EXT_texture_webp")]
                     "image/webp" => WebP,
-                    _ => match guess_format(encoded_image) {
+                    _ => match guess_format(&encoded_image) {
                         Some(format) => format,
                         None => return Err(Error::UnsupportedImageEncoding),
                     },
                 };
-                image_crate::load_from_memory_with_format(encoded_image, encoded_format)?
-            }
-            _ => return Err(Error::ExternalReferenceInSliceImport),
-        };
 
-        image::Data::new(decoded_image)
-    }
+                image_crate::load_from_memory_with_format(&encoded_image, encoded_format)?
+            }
+            Scheme::Unsupported => return Err(Error::UnsupportedScheme),
+            _ => {
+                let encoded_image = Scheme::read(base, uri)?;
+                let encoded_format = match mime_type {
+                    Some("image/png") => Png,
+                    Some("image/jpeg") => Jpeg,
+                    #[cfg(feature = "EXT_texture_webp")]
+                    Some("image/webp") => WebP,
+                    Some(_) => match guess_format(&encoded_image) {
+                        Some(format) => format,
+                        None => return Err(Error::UnsupportedImageEncoding),
+                    },
+                    None => match uri.rsplit('.').next() {
+                        Some("png") => Png,
+                        Some("jpg") | Some("jpeg") => Jpeg,
+                        #[cfg(feature = "EXT_texture_webp")]
+                        Some("webp") => WebP,
+                        _ => match guess_format(&encoded_image) {
+                            Some(format) => format,
+                            None => return Err(Error::UnsupportedImageEncoding),
+                        },
+                    },
+                };
+                image_crate::load_from_memory_with_format(&encoded_image, encoded_format)?
+            }
+        },
+        image::Source::View { view, mime_type } => {
+            let parent_buffer_data = &buffer_data[view.buffer().index()].0;
+            let begin = view.offset();
+            let end = begin + view.length();
+            let encoded_image = &parent_buffer_data[begin..end];
+            let encoded_format = match mime_type {
+                "image/png" => Png,
+                "image/jpeg" => Jpeg,
+                #[cfg(feature = "EXT_texture_webp")]
+                "image/webp" => WebP,
+                _ => match guess_format(encoded_image) {
+                    Some(format) => format,
+                    None => return Err(Error::UnsupportedImageEncoding),
+                },
+            };
+            image_crate::load_from_memory_with_format(encoded_image, encoded_format)?
+        }
+        _ => return Err(Error::ExternalReferenceInSliceImport),
+    };
+
+    Ok(decoded_image)
 }
 
 /// Import image data referenced by a glTF document.
@@ -233,10 +232,10 @@ pub fn import_images(
     document: &Document,
     base: Option<&Path>,
     buffer_data: &[buffer::Data],
-) -> Result<Vec<image::Data>> {
+) -> Result<Vec<DynamicImage>> {
     let mut images = Vec::new();
     for image in document.images() {
-        images.push(image::Data::from_source(image.source(), base, buffer_data)?);
+        images.push(image_from_source(image.source(), base, buffer_data)?);
     }
     Ok(images)
 }
