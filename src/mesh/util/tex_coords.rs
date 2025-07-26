@@ -52,19 +52,19 @@ impl<A: Cast> Iterator for CastingIter<'_, A> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        match self.0 {
-            ReadTexCoords::U8(ref mut i) => i.next().map(A::cast_u8),
-            ReadTexCoords::U16(ref mut i) => i.next().map(A::cast_u16),
-            ReadTexCoords::F32(ref mut i) => i.next().map(A::cast_f32),
+        match &mut self.0 {
+            ReadTexCoords::U8(i) => i.next().map(A::cast_u8),
+            ReadTexCoords::U16(i) => i.next().map(A::cast_u16),
+            ReadTexCoords::F32(i) => i.next().map(A::cast_f32),
         }
     }
 
     #[inline]
     fn nth(&mut self, x: usize) -> Option<Self::Item> {
-        match self.0 {
-            ReadTexCoords::U8(ref mut i) => i.nth(x).map(A::cast_u8),
-            ReadTexCoords::U16(ref mut i) => i.nth(x).map(A::cast_u16),
-            ReadTexCoords::F32(ref mut i) => i.nth(x).map(A::cast_f32),
+        match &mut self.0 {
+            ReadTexCoords::U8(i) => i.nth(x).map(A::cast_u8),
+            ReadTexCoords::U16(i) => i.nth(x).map(A::cast_u16),
+            ReadTexCoords::F32(i) => i.nth(x).map(A::cast_f32),
         }
     }
 
@@ -82,10 +82,10 @@ impl<A: Cast> Iterator for CastingIter<'_, A> {
 
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
-        match self.0 {
-            ReadTexCoords::U8(ref i) => i.size_hint(),
-            ReadTexCoords::U16(ref i) => i.size_hint(),
-            ReadTexCoords::F32(ref i) => i.size_hint(),
+        match &self.0 {
+            ReadTexCoords::U8(i) => i.size_hint(),
+            ReadTexCoords::U16(i) => i.size_hint(),
+            ReadTexCoords::F32(i) => i.size_hint(),
         }
     }
 }

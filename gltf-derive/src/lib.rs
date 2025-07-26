@@ -46,8 +46,8 @@ fn expand(ast: &DeriveInput) -> proc_macro2::TokenStream {
         }
     }
 
-    let fields = match ast.data {
-        syn::Data::Struct(ref data_struct) => &data_struct.fields,
+    let fields = match &ast.data {
+        syn::Data::Struct(data_struct) => &data_struct.fields,
         _ => panic!("#[derive(Validate)] only works on `struct`s"),
     };
     let ident = &ast.ident;

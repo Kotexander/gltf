@@ -48,8 +48,8 @@ pub enum Checked<T> {
 impl<T> Checked<T> {
     /// Converts from `Checked<T>` to `Checked<&T>`.
     pub fn as_ref(&self) -> Checked<&T> {
-        match *self {
-            Checked::Valid(ref item) => Checked::Valid(item),
+        match self {
+            Checked::Valid(item) => Checked::Valid(item),
             Checked::Invalid => Checked::Invalid,
         }
     }
@@ -72,8 +72,8 @@ impl<T: Serialize> Serialize for Checked<T> {
     where
         S: Serializer,
     {
-        match *self {
-            Checked::Valid(ref item) => item.serialize(serializer),
+        match self {
+            Checked::Valid(item) => item.serialize(serializer),
             Checked::Invalid => Err(ser::Error::custom("invalid item")),
         }
     }
@@ -81,8 +81,8 @@ impl<T: Serialize> Serialize for Checked<T> {
 
 impl<T: Clone> Clone for Checked<T> {
     fn clone(&self) -> Self {
-        match *self {
-            Checked::Valid(ref item) => Checked::Valid(item.clone()),
+        match self {
+            Checked::Valid(item) => Checked::Valid(item.clone()),
             Checked::Invalid => Checked::Invalid,
         }
     }

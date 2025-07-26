@@ -118,25 +118,25 @@ impl<A: Cast> Iterator for CastingIter<'_, A> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        match self.0 {
-            ReadColors::RgbU8(ref mut i) => i.next().map(A::cast_rgb_u8),
-            ReadColors::RgbU16(ref mut i) => i.next().map(A::cast_rgb_u16),
-            ReadColors::RgbF32(ref mut i) => i.next().map(A::cast_rgb_f32),
-            ReadColors::RgbaU8(ref mut i) => i.next().map(A::cast_rgba_u8),
-            ReadColors::RgbaU16(ref mut i) => i.next().map(A::cast_rgba_u16),
-            ReadColors::RgbaF32(ref mut i) => i.next().map(A::cast_rgba_f32),
+        match &mut self.0 {
+            ReadColors::RgbU8(i) => i.next().map(A::cast_rgb_u8),
+            ReadColors::RgbU16(i) => i.next().map(A::cast_rgb_u16),
+            ReadColors::RgbF32(i) => i.next().map(A::cast_rgb_f32),
+            ReadColors::RgbaU8(i) => i.next().map(A::cast_rgba_u8),
+            ReadColors::RgbaU16(i) => i.next().map(A::cast_rgba_u16),
+            ReadColors::RgbaF32(i) => i.next().map(A::cast_rgba_f32),
         }
     }
 
     #[inline]
     fn nth(&mut self, x: usize) -> Option<Self::Item> {
-        match self.0 {
-            ReadColors::RgbU8(ref mut i) => i.nth(x).map(A::cast_rgb_u8),
-            ReadColors::RgbU16(ref mut i) => i.nth(x).map(A::cast_rgb_u16),
-            ReadColors::RgbF32(ref mut i) => i.nth(x).map(A::cast_rgb_f32),
-            ReadColors::RgbaU8(ref mut i) => i.nth(x).map(A::cast_rgba_u8),
-            ReadColors::RgbaU16(ref mut i) => i.nth(x).map(A::cast_rgba_u16),
-            ReadColors::RgbaF32(ref mut i) => i.nth(x).map(A::cast_rgba_f32),
+        match &mut self.0 {
+            ReadColors::RgbU8(i) => i.nth(x).map(A::cast_rgb_u8),
+            ReadColors::RgbU16(i) => i.nth(x).map(A::cast_rgb_u16),
+            ReadColors::RgbF32(i) => i.nth(x).map(A::cast_rgb_f32),
+            ReadColors::RgbaU8(i) => i.nth(x).map(A::cast_rgba_u8),
+            ReadColors::RgbaU16(i) => i.nth(x).map(A::cast_rgba_u16),
+            ReadColors::RgbaF32(i) => i.nth(x).map(A::cast_rgba_f32),
         }
     }
 
@@ -157,13 +157,13 @@ impl<A: Cast> Iterator for CastingIter<'_, A> {
 
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
-        match self.0 {
-            ReadColors::RgbU8(ref i) => i.size_hint(),
-            ReadColors::RgbU16(ref i) => i.size_hint(),
-            ReadColors::RgbF32(ref i) => i.size_hint(),
-            ReadColors::RgbaU8(ref i) => i.size_hint(),
-            ReadColors::RgbaU16(ref i) => i.size_hint(),
-            ReadColors::RgbaF32(ref i) => i.size_hint(),
+        match &self.0 {
+            ReadColors::RgbU8(i) => i.size_hint(),
+            ReadColors::RgbU16(i) => i.size_hint(),
+            ReadColors::RgbF32(i) => i.size_hint(),
+            ReadColors::RgbaU8(i) => i.size_hint(),
+            ReadColors::RgbaU16(i) => i.size_hint(),
+            ReadColors::RgbaF32(i) => i.size_hint(),
         }
     }
 }

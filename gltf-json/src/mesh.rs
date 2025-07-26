@@ -151,7 +151,7 @@ where
         let pos_accessor = &root.accessors[pos_accessor_index.value()];
 
         let min_path = &|| position_path().field("min");
-        if let Some(ref min) = pos_accessor.min {
+        if let Some(min) = &pos_accessor.min {
             if from_value::<[f32; 3]>(min.clone()).is_err() {
                 report(min_path, Error::Invalid);
             }
@@ -160,7 +160,7 @@ where
         }
 
         let max_path = &|| position_path().field("max");
-        if let Some(ref max) = pos_accessor.max {
+        if let Some(max) = &pos_accessor.max {
             if from_value::<[f32; 3]>(max.clone()).is_err() {
                 report(max_path, Error::Invalid);
             }

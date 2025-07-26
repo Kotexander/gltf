@@ -306,8 +306,8 @@ impl fmt::Display for Error {
         write!(
             f,
             "{}",
-            match *self {
-                Error::Io(ref e) => return e.fmt(f),
+            match self {
+                Error::Io(e) => return e.fmt(f),
                 Error::Version(_) => "unsupported version",
                 Error::Magic(_) => "not glTF magic",
                 Error::Length { .. } => "could not completely read the object",

@@ -28,15 +28,15 @@ impl<T: Item> Iterator for Iter<'_, T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         match self {
-            Iter::Standard(ref mut iter) => iter.next(),
-            Iter::Sparse(ref mut iter) => iter.next(),
+            Iter::Standard(iter) => iter.next(),
+            Iter::Sparse(iter) => iter.next(),
         }
     }
 
     fn nth(&mut self, nth: usize) -> Option<Self::Item> {
         match self {
-            Iter::Standard(ref mut iter) => iter.nth(nth),
-            Iter::Sparse(ref mut iter) => iter.nth(nth),
+            Iter::Standard(iter) => iter.nth(nth),
+            Iter::Sparse(iter) => iter.nth(nth),
         }
     }
 
@@ -56,8 +56,8 @@ impl<T: Item> Iterator for Iter<'_, T> {
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         match self {
-            Iter::Standard(ref iter) => iter.size_hint(),
-            Iter::Sparse(ref iter) => iter.size_hint(),
+            Iter::Standard(iter) => iter.size_hint(),
+            Iter::Sparse(iter) => iter.size_hint(),
         }
     }
 }
@@ -78,10 +78,10 @@ pub enum SparseIndicesIter<'a> {
 impl Iterator for SparseIndicesIter<'_> {
     type Item = u32;
     fn next(&mut self) -> Option<Self::Item> {
-        match *self {
-            SparseIndicesIter::U8(ref mut iter) => iter.next().map(|x| x as u32),
-            SparseIndicesIter::U16(ref mut iter) => iter.next().map(|x| x as u32),
-            SparseIndicesIter::U32(ref mut iter) => iter.next(),
+        match self {
+            SparseIndicesIter::U8(iter) => iter.next().map(|x| x as u32),
+            SparseIndicesIter::U16(iter) => iter.next().map(|x| x as u32),
+            SparseIndicesIter::U32(iter) => iter.next(),
         }
     }
 }
