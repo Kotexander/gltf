@@ -42,10 +42,8 @@ fn check_import_result(
 }
 
 fn run() -> Result<(), Box<dyn StdError>> {
-    println!("asdf");
     let sample_dir_path = path::Path::new(SAMPLE_MODELS_DIRECTORY_PATH);
     for entry in fs::read_dir(sample_dir_path)? {
-        println!("DSDF");
         let entry = entry?;
         let metadata = entry.metadata()?;
         if metadata.is_dir() {
